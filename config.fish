@@ -1,3 +1,11 @@
+function fishconf
+	sudo vi ~/.config/fish/config.fish
+end
+
+function kittyconf
+	sudo vi ~/.config/kitty/kitty.conf
+end
+
 function upg
 	sudo dnf upgrade
 end
