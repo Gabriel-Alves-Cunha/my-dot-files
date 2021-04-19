@@ -1,8 +1,8 @@
-# for fedora
+# for fedora (with fish.conf available)
+sudo dnf -y groupinstall "Development Tools"
+i -y kitty fish vim openssl
 
-sudo dnf install kitty fish 
-
-# installing protonvpn-cli
+echo "Installing protonvpn-cli"
 echo "[proton-fedora-33-unstable]
 name="fedora-33-unstable"
 baseurl=https://repo.protonvpn.com/fedora-33-unstable/
@@ -10,6 +10,18 @@ enabled=1
 gpgcheck=1
 repo_gpgcheck=1
 gpgkey=https://repo.protonvpn.com/fedora-33-unstable/public_key.asc" | sudo vim /etc/yum.repos.d/fedora-33-unstable.repo
+upg
 echo "Now, login in protonvpn!!"
 
-#
+# install rust stuff
+echo "Installing Volta and NodeJS"
+sudo curl https://get.volta.sh | bash
+volta completions
+volta install node
+
+echo "Installing Rust"
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+fish_add_path $HOME/.cargo/bin/
+
+echo "Installing rust utils"
+i -y ripgrep bat exa fd-find
