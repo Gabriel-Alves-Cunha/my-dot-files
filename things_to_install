@@ -1,0 +1,15 @@
+# for fedora
+
+sudo dnf install kitty fish 
+
+# installing protonvpn-cli
+echo "[proton-fedora-33-unstable]
+name="fedora-33-unstable"
+baseurl=https://repo.protonvpn.com/fedora-33-unstable/
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://repo.protonvpn.com/fedora-33-unstable/public_key.asc" | sudo vim /etc/yum.repos.d/fedora-33-unstable.repo
+echo "Now, login in protonvpn!!"
+
+#
