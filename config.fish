@@ -1,13 +1,17 @@
+function search
+	dnf search $argv
+end
+
 function fishconf
-	sudo vi ~/.config/fish/config.fish
+	sudo vim ~/.config/fish/config.fish
 end
 
 function kittyconf
-	sudo vi ~/.config/kitty/kitty.conf
+	vim ~/.config/kitty/kitty.conf
 end
 
 function upg
-	sudo dnf upgrade
+	sudo dnf -y upgrade
 end
 
 function find
@@ -43,7 +47,7 @@ function cx -d 'Make file executable'
 	chmod +x $argv
 end
 
-function down -d 'Go to Downloads'
+function dow -d 'Go to Downloads'
     cd ~/Downloads
 end
 
@@ -55,6 +59,22 @@ function gs -d 'Concise (git status)'
     git status -sb
 end
 
+function ga -d 'Concise (git add .)'
+	git add .
+end
+
+function gm -d 'Concise (git commit -m)'
+	git commit -m $argv
+end
+
+function clone -d 'Concise (git clone)'
+	git clone $argv
+end
+
+function f -d 'fzfx'
+	fzfx
+end
+
 function volup
 	pactl -- set-sink-volume (pactl list | grep -B 1 'RUNNING' | grep -o '[0-9]' | read -z) +10%
 end
@@ -64,6 +84,5 @@ function voldown
 end
 
 # sources
-if test -f /home/gabriel/.autojump/share/autojump/autojump.fish; . /home/gabriel/.autojump/share/autojump/autojump.fish; end
 set -gx VOLTA_HOME "$HOME/.volta"
 set -gx PATH "$VOLTA_HOME/bin" $PATH
