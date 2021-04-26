@@ -8,6 +8,11 @@ filetype off                  " required
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
+set number
+set shell=/bin/bash
+set background=dark
+colorscheme solarized
+syntax enable
 call vundle#begin()
 " alternatively, pass a path where Vundle should install plugins
 "call vundle#begin('~/some/path/here')
