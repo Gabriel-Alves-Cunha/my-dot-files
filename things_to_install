@@ -1,6 +1,6 @@
 # for fedora (with fish.conf available)
 sudo dnf -y groupinstall "Development Tools"
-i -y kitty fish vim openssl
+i -y kitty openssl
 
 # vim and tauri(usefull stuff)
 i -y python3-devel cmake
