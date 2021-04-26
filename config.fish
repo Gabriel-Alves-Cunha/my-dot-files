@@ -1,3 +1,7 @@
+function vimpup -d 'Update vim plugins'
+	vim +PluginInstall +qall
+end
+
 function search
 	dnf search $argv
 end
