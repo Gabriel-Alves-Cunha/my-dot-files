@@ -1,3 +1,6 @@
+# supress init msg
+set -U fish_greeting ""
+
 # for fedora (with fish.conf available)
 sudo dnf -y groupinstall "Development Tools"
 i -y kitty openssl
