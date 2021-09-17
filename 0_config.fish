@@ -75,8 +75,16 @@ function clone -d 'Concise (git clone)'
 	git clone $argv
 end
 
-function f -d 'fzfx'
-	fzfx
+function gp -d 'Concise git push'
+        git push
+end
+
+function untar
+        tar -xjvf $argv
+end
+
+function gr
+        rg $arvg --stats -p --no-ignore-dot -i -. -l -L
 end
 
 function volup
@@ -90,3 +98,6 @@ end
 # sources
 set -gx VOLTA_HOME "$HOME/.volta"
 set -gx PATH "$VOLTA_HOME/bin" $PATH
+
+# fish conf
+set -g -x fish_greeting ''
