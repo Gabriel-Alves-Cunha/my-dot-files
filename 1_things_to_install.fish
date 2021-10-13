@@ -2,11 +2,10 @@
 set -U fish_greeting ""
 
 # for fedora (with fish.conf available)
-sudo dnf -y groupinstall "Development Tools"
-i -y kitty openssl
+i kitty openssl
 
 # vim and tauri(usefull stuff)
-i -y python3-devel cmake
+i python3-devel cmake
 upg
 sudo dnf check-update && sudo dnf install webkit2gtk3-devel.x86_64 \
     openssl-devel \
@@ -39,11 +38,3 @@ fish_add_path $HOME/.cargo/bin/
 echo "Installing linux rust utils"
 i -y ripgrep bat exa fd-find
 cargo install --locked ripgrep-all
-
-echo "installing fzfx"
-cd
-mkdir Apps
-clone https://github.com/lbcnz/fzfx.git
-cd fzfx
-touch config
-./setup install
