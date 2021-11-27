@@ -6,6 +6,14 @@ function search
 	dnf search $argv
 end
 
+function fd --wraps fd -d "Find files fast"
+	command fd --hidden --full-path $argv
+end
+
+function beep
+	echo -n \a
+end
+
 function fishconf
 	sudo vim ~/.config/fish/config.fish
 end
@@ -18,10 +26,6 @@ function upg
 	sudo dnf -y upgrade
 end
 
-function find
-	fd $argv
-end
-
 function rmp
 	sudo dnf remove $argv
 end
@@ -32,6 +36,7 @@ end
 
 function mkdir -d "Create a directory and set CWD"
     command mkdir $argv
+
     if test $status = 0
         switch $argv[(count $argv)]
             case '-*'
@@ -43,18 +48,27 @@ function mkdir -d "Create a directory and set CWD"
     end
 end
 
-function ls
+function del
+	rsync -a --delete ~/blank/ $argv
+	rm -rf $argv
+end
+	
+function l
 	exa -a
 end
 
-function cx -d 'Make file executable'
+function mkexec -d 'Make file executable'
 	chmod +x $argv
+end
+
+function font -d "Reinicialize fonts cache on system"
+	fc-cache -f -v
 end
 
 function dow -d 'Go to Downloads'
     cd ~/Downloads
 end
-
+	
 function doc -d 'Go to Documents'
     cd ~/Documents
 end
@@ -83,8 +97,8 @@ function untar
         tar -xjvf $argv
 end
 
-function gr
-        rg $arvg --stats -p --no-ignore-dot -i -. -l -L
+function rg
+        command rg --stats --no-ignore-global --line-number --no-ignore --pretty --no-ignore-dot --ignore-case --hidden --heading --auto-hybrid-regex --follow --with-filename $argv
 end
 
 function volup
@@ -95,9 +109,24 @@ function voldown
 	pactl -- set-sink-volume (pactl list | grep -B 1 'RUNNING' | grep -o '[0-9]' | read -z) -10%
 end
 
-# sources
+function lisp -d "Run a CommomLisp file. You can just use the base of the file name, and if there's a compiled version, then SBCL should load that, and if there's not, then SBCL will load the source file and compile it."
+	sbcl --noinform --load $argv --eval '(sb-ext:quit)'
+end
+
+function yarn:berry -d "Set yarn version to berry with typescript + vscode."
+	yarn set version berry
+	yarn plugin import typescript
+	yarn dlx @yarnpkg/sdks vscode
+	yarn
+end
+
+##################### sources
+
 set -gx VOLTA_HOME "$HOME/.volta"
 set -gx PATH "$VOLTA_HOME/bin" $PATH
 
-# fish conf
+source ~/.asdf/asdf.fish
+
+##################### fish conf
+
 set -g -x fish_greeting ''
