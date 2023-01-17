@@ -26,6 +26,10 @@ function i -d "Install package to system"
     sudo dnf install $argv
 end
 
+function si -d "Install package to system with snap"
+    sudo snap install $argv
+end
+
 ############ Config
 
 function fishconf -d "Open fish config file"
@@ -45,6 +49,10 @@ function yarn:berry -d "Set yarn version to berry with Typescript plus VSCode"
     yarn
 end
 
+function br --wraps br -d "Open broot (tree) with nice options"
+    command br -w -s -g $argv
+end
+
 function t -d "Concise bat"
     bat --tabs 2 $argv
 end
@@ -53,7 +61,11 @@ function tt -d "Concise bat plain text (like cat)"
     bat --tabs 2 -p $argv
 end
 
-function ll -d "Display files and directories on one line each"
+function curl --wraps curl -d "Use curlie in place of curl"
+    curlie $argv
+end
+
+function l1 -d "Display files and directories on one line each"
     exa -Fl $argv
 end
 
@@ -100,6 +112,18 @@ function mkexec -d "Make file executable"
     chmod +x $argv
 end
 
+function ff -d "Fuzzy finder"
+    fzf $argv
+end
+
+function fp -d "Fuzzy finder with preview (just for text filtering)"
+    fzf --preview "bat --style=numbers --color=always --line-range :500 {}" $argv
+end
+
+function f -d "Fuzzy finder with ripgrep"
+    ~/fuzzy_ripgrep $argv
+end
+
 function font -d "Reinicialize fonts cache on system"
     fc-cache -f -v
 end
@@ -138,10 +162,6 @@ end
 
 function c- -d "Go to directory that you were last"
     cd -
-end
-
-function cl -d "Clear console"
-    clear
 end
 
 function notify -d "This will beep when the most recent job completes"
@@ -202,14 +222,63 @@ function gamp -d "Concise (git add . && git -m <msg> && git push) (takes an argu
     gp
 end
 
+function cherry -d "Do a cherry-pick git commit and change author to repository gitconfig author"
+    git cherry-pick $argv
+    GMESSAGE (git log -1 --pretty=%B)
+    git reset HEAD~1
+    git add .
+    git commit -n -m $GMESSAGE
+end
+
+############
+
+function cp
+    xcp $argv
+end
+
+function tree
+    broot $argv
+end
+
+function my
+    cd ~/Documents/VSCode/my_projects
+end
+
+function lite
+    ~/Apps/lite-xl/lite-xl (pwd) $argv &
+end
+
+############ Exports
+
+# Setting fd as the default source for fzf
+export FZF_DEFAULT_COMMAND='command fd --type f'
+
+# Setting a theme for fzf
+export FZF_DEFAULT_OPTS='--color=bg+:#3B4252,bg:#2E3440,spinner:#81A1C1,hl:#616E88,fg:#D8DEE9,header:#616E88,info:#81A1C1,pointer:#81A1C1,marker:#81A1C1,fg+:#D8DEE9,prompt:#81A1C1,hl+:#81A1C1'
+
 ############ Sources
 
 # Bun.js
 set -Ux BUN_INSTALL "/home/gabriel/.bun"
 set -px --path PATH "/home/gabriel/.bun/bin"
 
-source ~/.asdf/asdf.fish
+# source ~/.asdf/asdf.fish
 
 ############ Fish config
 
 set -g -x fish_greeting ''
+
+############ Starship
+
+starship init fish | source
+
+export PATH="$PATH:/home/gabriel/.bin"
+
+############ OpenAI
+
+# Copilot for terminal:
+export OPENAI_API_KEY="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"
+
+function copilot -d "OpenAI copilot for your terminal"
+    plz $argv
+end
