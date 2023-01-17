@@ -277,7 +277,7 @@ export PATH="$PATH:/home/gabriel/.bin"
 ############ OpenAI
 
 # Copilot for terminal:
-export OPENAI_API_KEY="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"
+export OPENAI_API_KEY=""
 
 function copilot -d "OpenAI copilot for your terminal"
     plz $argv
