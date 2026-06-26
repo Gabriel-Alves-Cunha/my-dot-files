@@ -4,53 +4,45 @@ function vimpup -d "Update vim plugins"
     vim +PluginInstall +qall
 end
 
-############ dnf -> Fedora's package manager
+############
 
-function s -d "Search dnf repository"
-    dnf search $argv
-end
-
-function i-rpm -d "Install rpm"
-    sudo dnf localinstall $argv
+function s -d "Search for pkg"
+    brew search $argv
 end
 
 function upg -d "Upgrade all packages"
-    sudo dnf -y upgrade
+    brew update
+    brew upgrade
 end
 
 function rmp -d "Remove package from system"
-    sudo dnf remove $argv
+    brew uninstall $argv
 end
 
 function i -d "Install package to system"
-    sudo dnf install $argv
-end
-
-function si -d "Install package to system with snap"
-    sudo snap install $argv
+    brew install $argv
 end
 
 ############ Config
 
 function fishconf -d "Open fish config file"
-    sudo vim ~/.config/fish/config.fish
+    $EDITOR ~/.config/fish/config.fish
 end
 
 function kittyconf -d "Open kitty config file"
-    vim ~/.config/kitty/kitty.conf
+    $EDITOR ~/.config/kitty/kitty.conf
 end
 
 ############ Console
 
-function yarn:berry -d "Set yarn version to berry with Typescript plus VSCode"
-    yarn set version berry
-    yarn plugin import typescript
-    yarn dlx @yarnpkg/sdks vscode
-    yarn
-end
-
 function br --wraps br -d "Open broot (tree) with nice options"
     command br -w -s -g $argv
+end
+
+function loop -d "loop <count> <command(s)>" -a count
+    for i in (seq 1 $count)
+        eval $argv[2..-1]
+    end
 end
 
 function t -d "Concise bat"
@@ -95,21 +87,25 @@ function mkdir -d "Create a directory and set CWD"
     end
 end
 
-function del -d "Delete a directory really fast (must have an empty directory '~/blank')"
-    rsync -a --delete ~/blank/ $argv
-    rmdir $argv
+function del -d "Delete a directory really fast (must have an empty directory '~/.blank')" -a directory
+    rsync -a --delete ~/.blank/ $directory
+    rmdir $directory
 end
 
-function l -d "Show everything under current directory"
-    exa -a $argv
+function clear-dir -d "Delete everything inside a directory really fast (must have an empty directory '~/.blank')" -a directory
+    rsync -a --delete ~/.blank/ $directory
 end
 
-function lt -d "Show everything under 2 directories deep in tree format"
-    exa -TbhL 2 $argv
+function l -d "Show everything under current directory" -a directory
+    eza -a $directory
 end
 
-function mkexec -d "Make file executable"
-    chmod +x $argv
+function lt -d "Show everything under 2 directories deep in tree format" -a directory
+    eza -TbhL 2 $directory
+end
+
+function mkexec -d "Make file executable" -a filename
+    chmod +x $filename
 end
 
 function ff -d "Fuzzy finder"
@@ -152,47 +148,109 @@ function rgs -d "Another pretty and usefull grep-like command that respects glob
     rg --stats --line-number --pretty --ignore-case --follow --context 3 $argv
 end
 
-function clip2file -d "Get text from clipboard and put it in a file (takes an argument that is the output file)"
-    xclip -selection clipboard -o >$argv
+function clip2file -d "Get text from clipboard and put it in a file (takes an argument that is the output file)" -a filename
+    pbpaste >$filename
 end
 
-function file2clip -d "Put file on clipboard (takes an argument that is the input file)"
-    xclip -selection clipboard <$argv
+function file2clip -d "Put file on clipboard (takes an argument that is the input file)" -a filename
+    pbcopy <$filename
 end
 
-function c- -d "Go to directory that you were last"
+function cl -d "Go to directory that you were last"
     cd -
+end
+
+function yt -d "Download mp3 audio from youtube video" -a youtube_link
+    yt-dlp -t mp3 "$youtube_link" --no-playlist
+end
+
+function reload-fish-fns
+    source ~/.config/fish/config.fish
 end
 
 function notify -d "This will beep when the most recent job completes"
     set -l job (jobs -l -g)
+
     or begin
         echo "There are no jobs" >&2
+
         return 1
     end
 
     function _notify_job_$job --on-job-exit $job --inherit-variable job
         echo -n \a # beep
+
         functions -e _notify_job_$job
     end
 end
 
+function reload-libs
+    sudo /sbin/ldconfig -v
+end
+
 ############ Git
+
+function gpp -d "git pull"
+    git pull $argv
+end
+
+function gbd -d "Git diff two branches" -a branch
+    git diff $branch..(git branch --show-current)
+end
 
 function gs -d "Concise (git status)"
     git status -sb
 end
 
-function ga -d "Concise (git add .)"
+function git-file-history -a filename
+    git log -p -- $filename
+end
+
+function ga -d "Stage all files"
     git add .
 end
 
-function gm -d "Concise (git commit -m) (takes an argument that is the commit message)"
-    git commit -m $argv
+function g -d "Concise git"
+    git $argv
 end
 
-function clone -d "Concise (git clone)"
-    git clone $argv --depth 1
+function gt -d "Concise git stash"
+    git stash $argv
+end
+
+function show-stash -a stash_number
+    git stash show -p -w $stash_number
+end
+
+function gtl -d "Concise (git stash list)"
+    git stash list $argv
+end
+
+function gtp -d "Concise (git stash pop)" -a index
+    set -q index[1]
+    or set index 0
+
+    git stash pop stash@\{$index\}
+end
+
+function gc -d "Concise (git checkout)"
+    git checkout $argv
+end
+
+function gcb -d "Concise (git checkout -b)"
+    git checkout -b $argv
+end
+
+function delete-commit-from-branch
+    git rebase -i HEAD~5
+end
+
+function gm -d "Concise (git commit -m) (takes an argument that is the commit message)" -a commit_message
+    git commit -m $commit_message
+end
+
+function clone -d "Concise (git clone)" -a link
+    git clone $link --depth 1 $argv[2..-1]
 end
 
 function gp -d "Concise (git push)"
@@ -200,40 +258,102 @@ function gp -d "Concise (git push)"
 end
 
 function gl -d "Concise (git log)"
-    git log
+    git log $argv
 end
 
 function gd -d "Concise (git diff)"
-    git diff
+    git diff --word-diff -w $argv
 end
 
-function gam -d "Concise (git add . && git -m <msg>) (takes an argument that is the commit message)"
-    ga
-    gm $argv
+function gam -d "Concise (git add . && git -m <msg>) (takes an argument that is the commit message)" -a commit_message
+    git add .
+    git commit -m $commit_message
 end
 
-function clone-branch -d "Concise (git clone --single-branch --branch <branch> --depth 1)"
-    git clone --single-branch --depth 1 --branch $argv
+function clone-branch -d "Concise (git clone --single-branch --branch <branch> --depth 1)" -a link
+    git clone --single-branch --depth 1 --branch $link
 end
 
-function gamp -d "Concise (git add . && git -m <msg> && git push) (takes an argument that is the commit message)"
-    ga
-    gm $argv
-    gp
+function gamp -d "Concise (git add . && git -m <msg> && git push) (takes an argument that is the commit message)" -a commit_message
+    git add .
+    git commit -m $commit_message
+    git push
 end
 
-function cherry -d "Do a cherry-pick git commit and change author to repository gitconfig author"
-    git cherry-pick $argv
-    GMESSAGE (git log -1 --pretty=%B)
+function cherry -d "Do a cherry-pick git commit and change author to repository gitconfig's author" -a hash
+    git cherry-pick $hash
+
+    set -l commit_message (git log -1 --pretty=%B)
+
     git reset HEAD~1
     git add .
-    git commit -n -m $GMESSAGE
+    git commit -n -m "$commit_message"
+end
+
+function recent-branches -d "Show the last branches worked on" -a number_of_branches
+    set -q number_of_branches[1]
+    or set number_of_branches 20
+
+    git for-each-ref --count $number_of_branches --sort=-committerdate refs/heads --format="%(refname:short)"
+end
+
+function lg
+    lazygit $argv
+end
+
+function update-and-rebase -d "The argument is your main branch" -a main_branch options
+    set -f my_branch (git branch --show-current)
+
+    git checkout $main_branch
+    git pull --rebase origin $main_branch
+    git checkout $my_branch
+    git rebase $main_branch $options
+end
+
+function update-and-merge -d "The argument is the branch you want to merge with" -a branch_to_merge_with
+    set -f curr_branch (git branch --show-current)
+
+    git checkout $branch_to_merge_with
+    git pull origin $branch_to_merge_with
+    git checkout $curr_branch
+    git pull origin $curr_branch
+    git merge --no-ff $branch_to_merge_with
+end
+
+function git-discard-all-unstaged-changes
+    git restore .
+end
+
+function git-discard-all-staged-changes
+    git reset HEAD
+    git checkout .
+end
+
+function reset-ahead-behind
+    set -f curr_branch (git branch --show-current)
+    echo origin/$curr_branch
+    git reset --hard origin/$curr_branch
+end
+
+function select-file-from-stash -a stash_number filename
+    git checkout stash@\{$stash_number\} -- $filename
+end
+
+function update-child-branch -d "1º arg is the mother branch, 2º arg is the child branch" -a mother_branch child_branch
+    git checkout $mother_branch
+    git pull
+    git checkout $child_branch
+    git rebase $mother_branch $arvg[3]
+end
+
+function gpl -d "Git pull"
+    git pull
 end
 
 ############
 
 function cp
-    xcp $argv
+    pbcopy $argv
 end
 
 function tree
@@ -241,44 +361,111 @@ function tree
 end
 
 function my
-    cd ~/Documents/VSCode/my_projects
+    cd ~/Documents/VSCode/Personal
 end
 
 function lite
     ~/Apps/lite-xl/lite-xl (pwd) $argv &
 end
 
+function work
+    cd ~/Documents/VSCode/Work
+end
+
+function dura-branch
+    echo "dura/$(git rev-parse HEAD)"
+end
+
+function compress-video -a input_video output_video
+    if test (count $argv) -lt 2
+        echo "Usage: compress_video <input_video> <output_video> [crf] [preset]"
+        return 1
+    end
+
+    set crf 23 # Default CRF
+    set preset medium # Default preset
+
+    if test (count $argv) -ge 3
+        set crf $argv[3]
+    end
+
+    if test (count $argv) -ge 4
+        set preset $argv[4]
+    end
+
+    ffmpeg -i "$input_video" -vcodec libx264 -crf $crf -preset $preset -acodec aac -b:a 128k "$output_video"
+
+    echo "Compression complete: $output_video"
+end
+
 ############ Exports
 
+set -gx EDITOR code
+
 # Setting fd as the default source for fzf
-export FZF_DEFAULT_COMMAND='command fd --type f'
+export FZF_DEFAULT_COMMAND='command fd --type f --exclude ".git"'
 
 # Setting a theme for fzf
-export FZF_DEFAULT_OPTS='--color=bg+:#3B4252,bg:#2E3440,spinner:#81A1C1,hl:#616E88,fg:#D8DEE9,header:#616E88,info:#81A1C1,pointer:#81A1C1,marker:#81A1C1,fg+:#D8DEE9,prompt:#81A1C1,hl+:#81A1C1'
+export FZF_DEFAULT_OPTS='--color=bg+:#293739,bg:#1B1D1E,border:#808080,spinner:#E6DB74,hl:#7E8E91,fg:#F8F8F2,header:#7E8E91,info:#A6E22E,pointer:#A6E22E,marker:#F92672,fg+:#F8F8F2,prompt:#F92672,hl+:#F92672'
+
+export FZF_CTRL_T_OPTS=''
 
 ############ Sources
 
-# Bun.js
-set -Ux BUN_INSTALL "/home/gabriel/.bun"
-set -px --path PATH "/home/gabriel/.bun/bin"
+# Java
 
-# source ~/.asdf/asdf.fish
+set -gx JAVA_HOME $(/usr/libexec/java_home)
+
+# Bun
+
+set --export BUN_INSTALL $HOME/.bun
+set --export PATH $BUN_INSTALL/bin $PATH
+
+# Android Studio
+
+set -gx ANDROID_HOME $HOME/Library/Android/sdk
+fish_add_path $ANDROID_HOME/emulator
+fish_add_path $ANDROID_HOME/platform-tools
 
 ############ Fish config
 
 set -g -x fish_greeting ''
 
-############ Starship
+############ Init
 
+# Starship
 starship init fish | source
 
-export PATH="$PATH:/home/gabriel/.bin"
+# Atuin
+atuin init fish | source
 
-############ OpenAI
+# Pyenv
+# pyenv init - | source
 
-# Copilot for terminal:
-export OPENAI_API_KEY=""
+# fnm
+fnm env --use-on-cd | source
 
-function copilot -d "OpenAI copilot for your terminal"
-    plz $argv
+# Change limit of open files at a time:
+ulimit -S -n 81920
+
+# pnpm
+set -gx PNPM_HOME /Users/sevenofnine/Library/pnpm
+if not string match -q -- $PNPM_HOME $PATH
+    set -gx PATH "$PNPM_HOME" $PATH
 end
+
+# rbenv initialization for Fish shell
+set -gx PATH (rbenv root)/shims $PATH
+status --is-interactive; and . (rbenv init -|psub)
+
+# Mole shell completion
+set -l output (mole completion fish 2>/dev/null); and echo "$output" | source
+
+# Add node to path for gsd:
+fish_add_path "/Users/sevenofnine/Library/Application Support/fnm/node-versions/v24.14.0/installation/bin"
+
+# Added by Antigravity IDE
+fish_add_path /Users/sevenofnine/.antigravity-ide/antigravity-ide/bin
+
+# Added by Antigravity IDE
+fish_add_path /Users/sevenofnine/.antigravity-ide/antigravity-ide/bin
